@@ -12,7 +12,7 @@ export class PostEntity{
     id: number;
 
     @Column()
-    title: string;
+    title:string; 
 
     @Column()
     content: string;
