@@ -1,28 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {UserEntity} from 'src/entities';
+import {Repository} from 'typeorm';
 
 @Injectable()
 export class UserService {
-    users: string[] = ['KYJ', 'LJW', 'KHS'];
+    constructor(
+        @InjectRepository(UserEntity)
+        private readonly userRepository: Repository<UserEntity>,
+    ) {}
 
-    getUsers(): string[]{
-        return this.users;
+    async getUsers(): Promise<UserEntity[]> {
+        const users = this.userRepository.find();
+        return users;
     }
 
-    async addUser(name: string): Promise<string[]> { //비동기의 경우 당장 자료형을 확정할 수 없음 -> Promise를 추가하여 작성
-        if(!this.users.includes(name)) {
-            await this.users.push(name); //내가 name을 넣어줄 때까지 기다려야 함 -> await 작성
+    async findByEmail(email: string): Promise<UserEntity>{
+        const user = this.userRepository.findOne({where: {email}});
+        return user;
+    }
+
+    async addUser(info: UserEntity): Promise<UserEntity | void>{
+        if(!(await this.findByEmail(info.email))){
+            const user = this.userRepository.create(info);
+            return await this.userRepository.save(user);
         }
-        return this.users;
-    }
-
-    async deleteUser(name: string): Promise<string[]> {
-        if (this.users.includes(name)){
-            await this.users.splice(this.users.indexOf(name), 1);
+        else{
+            throw new HttpException('user already exists', 409)
         }
-        return this.users;
     }
 
-    getUserName(index:number): string{
-        return this.users[index];
+    async deleteUser(email: string): Promise<void>{
+        if(await this.findByEmail(email)){
+            await this.userRepository.delete({email});
+        }
+        else{
+            throw new HttpException('user not found', 404)
+        }
+    }
+
+    async updatePassword(email: string, password: string): Promise<void>{
+        if(await this.findByEmail(email)){
+            await this.userRepository.update({email}, {password});
+        }
+        else{
+            throw new HttpException('user not found', 404)
+        }
     }
 }
