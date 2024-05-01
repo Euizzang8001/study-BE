@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Delete, Put} from '@nestjs/common';
 import { UserService } from './user.service';
-import {UserEntity} from 'src/entities';
+import { UserEntity } from 'src/entities';
 import { HttpExceptionFilter } from 'src/filter/http-exception.filter';
 
 @Controller('user')
@@ -13,7 +13,7 @@ export class UserController {
     }
 
     @Post()
-    async addUser(@Body() info): Promise<string[]>{
+    async addUser(@Body() info){
         return this.userService.addUser(info)
     }
 
