@@ -1,5 +1,6 @@
-import {IsDate, IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, IsEnum } from "class-validator";
 import { UserEntity } from "src/entities";
+import { Rank } from "src/common/enums/rank.enum";
 
 export class UserResponseDto {
     @IsNotEmpty()
@@ -10,17 +11,21 @@ export class UserResponseDto {
     @IsString()
     name: string;
 
+    @IsNotEmpty()
+    @IsEnum(Rank)
+    rank: Rank;
     @IsOptional()
     @IsString()
     image?: string;
 
     @IsDate()
-    createAt: Date;
+    createdAt: Date;
 
     constructor(userEntity: UserEntity){
         this.email = userEntity.email;
         this.name = userEntity.name;
+        this.rank = userEntity.rank;
         this.image = userEntity.image;
-        this.createAt = userEntity.createdAt;
+        this.createdAt = userEntity.createdAt;
     }
 }
