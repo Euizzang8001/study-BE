@@ -2,8 +2,10 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { UserEntity } from "src/entities";
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm';
+import { UserRequestDto } from "src/user/dtos/user.request.dto";
 
 @Injectable()
+//무슨 데이터를 접근할 것인지마다 나누자 귀찮아지기 전에
 export class UserRepository{
     constructor(
         @InjectRepository(UserEntity)
@@ -25,7 +27,7 @@ export class UserRepository{
         return user;
     }
 
-    async create(info: UserEntity): Promise<UserEntity>{
+    async create(info: UserRequestDto): Promise<UserEntity>{
         if(!(await this.existsByEmail(info.email))){
             const user = this.userRepository.create(info);
             return await this.userRepository.save(user);
